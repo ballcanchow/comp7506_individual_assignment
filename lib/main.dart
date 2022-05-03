@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'My Flutter App',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: "My Flutter App"),
     );
   }
 }
@@ -48,16 +49,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final textField1Controller = TextEditingController();
+  final textField2Controller = TextEditingController();
+  final textField3Controller = TextEditingController();
+  String resultValueString = "";
 
-  void _incrementCounter() {
+  void _clearSumAndSetState(String ignored) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      resultValueString = "";
+    });
+  }
+
+  void _calculateSumAndSetState() {
+    var sum = (
+      (textField1Controller.text.isEmpty ? 0 : double.parse(textField1Controller.text)) +
+      (textField2Controller.text.isEmpty ? 0 : double.parse(textField2Controller.text)) +
+      (textField3Controller.text.isEmpty ? 0 : double.parse(textField3Controller.text))
+    );
+
+    setState(() {
+      resultValueString = sum.ceil() == sum.floor() ? sum.toInt().toString() : sum.toString();
     });
   }
 
@@ -94,22 +105,48 @@ class _MyHomePageState extends State<MyHomePage> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          children: <Widget> [
+            Expanded(child: Row(
+              children: const <Widget> [
+                Spacer(flex: 1,),
+                Expanded(flex: 14, child: Text("Please input 3 numbers", textAlign: TextAlign.left, style: TextStyle(fontSize: 24, color: Color.fromRGBO(88, 88, 255, 1)),)),
+                Spacer(flex: 1,),
+              ],
+            )),
+            Expanded(child: Row(
+              children: <Widget> [
+                const Spacer(flex: 1,),
+                Expanded(flex: 4,child: TextField(controller: textField1Controller, onChanged: _clearSumAndSetState, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]+(.[0-9]*)?'))], textAlign: TextAlign.right, maxLength: 8, autofocus: true)),
+                const Expanded(child: Text('+', textAlign: TextAlign.center)),
+                Expanded(flex: 4, child: TextField(controller: textField2Controller, onChanged: _clearSumAndSetState, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]+(.[0-9]*)?'))], textAlign: TextAlign.right, maxLength: 8)),
+                const Expanded(child: Text('+', textAlign: TextAlign.center)),
+                Expanded(flex: 4, child: TextField(controller: textField3Controller, onChanged: _clearSumAndSetState, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]+(.[0-9]*)?'))], textAlign: TextAlign.right, maxLength: 8)),
+                const Spacer(flex: 1,),
+              ],
+            )),
+            Expanded(child: Row(
+              children: <Widget> [
+                const Expanded(child: Text('=', textAlign: TextAlign.center, style: TextStyle(fontSize: 20),)),
+                Expanded(flex: 14, child: Text(resultValueString, textAlign: TextAlign.left, style: const TextStyle(fontSize: 20),)),
+                const Spacer(flex: 1,),
+              ],
+            )),
+            Expanded(child: Row(
+              children: <Widget> [
+                const Spacer(flex: 8),
+                Expanded(flex: 7,
+                    child: ElevatedButton(
+                      onPressed: _calculateSumAndSetState,
+                      child: const Text('Calculate Sum'),
+                    )
+                ),
+                const Spacer(flex: 1,),
+              ],
+            )),
+            const Spacer()
+          ]
+        )
+      )
     );
   }
 }
